@@ -4,6 +4,7 @@
 [![license](https://img.shields.io/github/license/AlaeddineMessadi/opencode-mcp)](https://github.com/AlaeddineMessadi/opencode-mcp/blob/main/LICENSE)
 [![node](https://img.shields.io/node/v/opencode-mcp)](https://nodejs.org/)
 [![npm downloads](https://img.shields.io/npm/dm/opencode-mcp)](https://www.npmjs.com/package/opencode-mcp)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](https://nodejs.org/)
 
 **Give any MCP client the power of [OpenCode](https://opencode.ai/).**
 
@@ -21,7 +22,9 @@ opencode-mcp is an MCP server that bridges your AI tools (Claude, Cursor, Windsu
 ## Quick Start
 
 > **Prerequisite:** [OpenCode](https://opencode.ai/) must be installed.
-> `curl -fsSL https://opencode.ai/install | bash` or `npm i -g opencode-ai` or `brew install sst/tap/opencode`
+> - Windows: Download from [opencode.ai/download](https://opencode.ai/download) or `winget install opencode`
+> - macOS/Linux: `curl -fsSL https://opencode.ai/install | bash` or `brew install sst/tap/opencode`
+> - All platforms: `npm i -g opencode-ai`
 
 **Claude Code:**
 
