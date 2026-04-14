@@ -147,7 +147,7 @@ Guided workflow templates your client can offer as selectable actions:
 Every tool accepts an optional `directory` parameter to target a different project. No restarts needed.
 
 ```
-opencode_ask({ directory: "/home/user/mobile-app", prompt: "Add navigation" })
+opencode_ask({ directory: "C:\\Projects\\mobile-app", prompt: "Add navigation" })
 opencode_ask({ directory: "/home/user/web-app", prompt: "Add auth" })
 ```
 
