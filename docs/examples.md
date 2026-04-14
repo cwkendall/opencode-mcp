@@ -152,7 +152,7 @@ Work on multiple projects from one client:
 ```json
 // Mobile app
 opencode_ask({
-  "directory": "C:\\Projects\\mobile-app",
+  "directory": "/home/user/projects/mobile-app",
   "prompt": "Set up React Navigation with a tab navigator"
 })
 
