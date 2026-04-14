@@ -240,12 +240,17 @@ describe("getInstalledVersion", () => {
 // ─── getInstallInstructions ──────────────────────────────────────────────
 
 describe("getInstallInstructions", () => {
-  it("includes all install methods", () => {
+  it("includes install methods for the current platform", () => {
     const instructions = getInstallInstructions();
     expect(instructions).toContain("npm i -g opencode-ai");
-    expect(instructions).toContain("curl -fsSL https://opencode.ai/install | bash");
-    expect(instructions).toContain("brew install sst/tap/opencode");
+    expect(instructions).toContain("https://opencode.ai/download");
     expect(instructions).toContain("OPENCODE_AUTO_SERVE=false");
+    if (process.platform === "win32") {
+      expect(instructions).toContain("winget install opencode");
+    } else {
+      expect(instructions).toContain("curl -fsSL https://opencode.ai/install | bash");
+      expect(instructions).toContain("brew install sst/tap/opencode");
+    }
   });
 });
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { tmpdir } from "node:os";
 import {
   formatMessageResponse,
   formatMessageList,
@@ -897,24 +898,23 @@ describe("normalizeDirectory", () => {
   });
 
   it("normalizes a valid absolute path", () => {
-    const result = normalizeDirectory("/tmp");
-    expect(result).toBe("/tmp");
+    const result = normalizeDirectory(tmpdir());
+    expect(result).toBe(tmpdir());
   });
 
   it("removes trailing slashes", () => {
-    const result = normalizeDirectory("/tmp/");
-    expect(result).toBe("/tmp");
+    const result = normalizeDirectory(tmpdir() + "/");
+    expect(result).toBe(tmpdir());
   });
 
   it("resolves .. in paths", () => {
-    const result = normalizeDirectory("/tmp/foo/..");
-    expect(result).toBe("/tmp");
+    const result = normalizeDirectory(tmpdir() + "/foo/..");
+    expect(result).toBe(tmpdir());
   });
 
   it("resolves . in paths", () => {
-    // /tmp/. resolves to /tmp, which exists
-    const result = normalizeDirectory("/tmp/.");
-    expect(result).toBe("/tmp");
+    const result = normalizeDirectory(tmpdir() + "/.");
+    expect(result).toBe(tmpdir());
   });
 
   it("throws for non-existent directory", () => {
@@ -923,9 +923,8 @@ describe("normalizeDirectory", () => {
   });
 
   it("accepts a known existing directory", () => {
-    // /tmp always exists on Linux
-    const result = normalizeDirectory("/tmp");
-    expect(result).toBe("/tmp");
+    const result = normalizeDirectory(tmpdir());
+    expect(result).toBe(tmpdir());
   });
 });
 
@@ -969,7 +968,6 @@ describe("toolError diagnoseError enhancements", () => {
     const result = toolError(new Error("Invalid directory: \"./foo\" is not an absolute path"));
     const text = result.content[0].text;
     expect(text).toContain("absolute path");
-    expect(text).toContain("/home/user/my-project");
   });
 
   it("suggests absolute path for directory not found errors", () => {

@@ -114,19 +114,30 @@ export async function getInstalledVersion(
  * Build installation instructions for when the binary is not found.
  */
 export function getInstallInstructions(): string {
-  return [
+  const isWindows = process.platform === "win32";
+  const lines = [
     "OpenCode is not installed on this system.",
     "",
     "Install it using one of these methods:",
-    "  curl -fsSL https://opencode.ai/install | bash",
-    "  npm i -g opencode-ai",
-    "  brew install sst/tap/opencode",
-    "",
-    "For more options: https://opencode.ai",
-    "",
-    "After installing, restart the MCP server.",
-    "To disable auto-start: set OPENCODE_AUTO_SERVE=false",
-  ].join("\n");
+  ];
+
+  if (isWindows) {
+    lines.push("  1. Download from: https://opencode.ai/download");
+    lines.push("  2. Or install via npm: npm i -g opencode-ai");
+    lines.push("  3. Or using winget: winget install opencode");
+  } else {
+    lines.push("  curl -fsSL https://opencode.ai/install | bash");
+    lines.push("  npm i -g opencode-ai");
+    lines.push("  brew install sst/tap/opencode");
+  }
+
+  lines.push("");
+  lines.push("For more options: https://opencode.ai/download");
+  lines.push("");
+  lines.push("After installing, restart the MCP server.");
+  lines.push("To disable auto-start: set OPENCODE_AUTO_SERVE=false");
+
+  return lines.join("\n");
 }
 
 /**
@@ -158,6 +169,27 @@ async function waitForHealthy(
   return false;
 }
 
+function killProcess(proc: ChildProcess): void {
+  if (!proc || proc.killed) return;
+  try {
+    proc.kill("SIGTERM");
+  } catch {
+    // Fallback for Windows where SIGTERM may not work
+    try {
+      proc.kill("SIGKILL");
+    } catch {
+      // Process may have already exited
+    }
+  }
+}
+
+function cleanupProcess(): void {
+  if (managedProcess && !managedProcess.killed) {
+    killProcess(managedProcess);
+    managedProcess = null;
+  }
+}
+
 /**
  * Register process-exit handlers to kill the managed child process.
  * Only registers once even if called multiple times.
@@ -166,20 +198,13 @@ function registerShutdownHandlers(): void {
   if (shutdownRegistered) return;
   shutdownRegistered = true;
 
-  const cleanup = () => {
-    if (managedProcess && !managedProcess.killed) {
-      managedProcess.kill("SIGTERM");
-      managedProcess = null;
-    }
-  };
-
-  process.on("exit", cleanup);
+  process.on("exit", cleanupProcess);
   process.on("SIGINT", () => {
-    cleanup();
+    cleanupProcess();
     process.exit(0);
   });
   process.on("SIGTERM", () => {
-    cleanup();
+    cleanupProcess();
     process.exit(0);
   });
 }
@@ -250,7 +275,7 @@ export async function startServer(
 
   if (!healthy) {
     // Kill the child if it's still around.
-    if (!child.killed) child.kill("SIGTERM");
+    killProcess(child);
     managedProcess = null;
     throw new Error(
       `opencode serve did not become healthy within ${timeoutMs / 1000}s.\n` +
@@ -267,10 +292,7 @@ export async function startServer(
  * Stop the managed child process (if we started one).
  */
 export function stopServer(): void {
-  if (managedProcess && !managedProcess.killed) {
-    managedProcess.kill("SIGTERM");
-    managedProcess = null;
-  }
+  cleanupProcess();
 }
 
 /**

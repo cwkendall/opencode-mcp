@@ -1,11 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { basename } from "node:path";
 import { OpenCodeClient } from "../client.js";
 import { toolJson, toolError, toolResult, directoryParam } from "../helpers.js";
 
 /** Format a project object into a compact summary. */
 function formatProject(p: Record<string, unknown>): string {
   const worktree = (p.worktree ?? "unknown") as string;
-  const name = (worktree !== "unknown" ? worktree.split("/").filter(Boolean).pop() : undefined)
+  const name = (worktree !== "unknown" ? basename(worktree) : undefined)
     ?? p.name ?? p.id ?? "unknown";
   const lines: string[] = [];
   lines.push(`Name: ${name}`);
@@ -41,7 +42,7 @@ export function registerProjectTools(
         }
         const lines = projects.map((p) => {
           const worktree = (p.worktree ?? "?") as string;
-          const name = (worktree !== "?" ? worktree.split("/").filter(Boolean).pop() : undefined)
+          const name = (worktree !== "?" ? basename(worktree) : undefined)
             ?? p.name ?? p.id ?? "(root)";
           const vcs = p.vcs ? ` [${p.vcs}]` : "";
           return `- ${name}: ${worktree}${vcs}`;

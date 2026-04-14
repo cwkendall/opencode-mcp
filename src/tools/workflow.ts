@@ -4,6 +4,7 @@
  */
 
 import { z } from "zod";
+import { basename } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { OpenCodeClient } from "../client.js";
 import {
@@ -171,7 +172,7 @@ export function registerWorkflowTools(
           const worktree = (project.worktree ?? "unknown") as string;
           // Derive a readable name: prefer project.name, then last dir component from worktree, then id
           const name = project.name
-            ?? (worktree !== "unknown" ? worktree.split("/").filter(Boolean).pop() : null)
+            ?? (worktree !== "unknown" ? basename(worktree) : null)
             ?? project.id
             ?? "unknown";
           const vcs = project.vcs ?? "none";
@@ -434,7 +435,7 @@ export function registerWorkflowTools(
           const p = project as Record<string, unknown>;
           const worktree = (p.worktree ?? "unknown") as string;
           const name = p.name
-            ?? (worktree !== "unknown" ? worktree.split("/").filter(Boolean).pop() : null)
+            ?? (worktree !== "unknown" ? basename(worktree) : null)
             ?? p.id ?? "unknown";
           const lines = [`Name: ${name}`, `Path: ${worktree}`];
           if (p.vcs) lines.push(`VCS: ${p.vcs}`);

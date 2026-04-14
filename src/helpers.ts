@@ -8,7 +8,7 @@
 
 import { z } from "zod";
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { isAbsolute, resolve } from "node:path";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -81,8 +81,8 @@ export function applyModelDefaults(
 
 /**
  * Normalize and validate a directory path:
- *  - Resolves to absolute (handles "..", trailing slashes, etc.)
- *  - Rejects relative paths (must start with /)
+ *  - Resolves to absolute (handles "..", ".", trailing slashes, etc.)
+ *  - Validates that the path is absolute (cross-platform)
  *  - Validates that the path exists on disk
  *
  * Returns the normalized path, or undefined if input was undefined.
@@ -91,18 +91,15 @@ export function applyModelDefaults(
 export function normalizeDirectory(directory?: string): string | undefined {
   if (!directory) return undefined;
 
-  // Resolve to absolute (handles "..", ".", trailing slashes)
   const normalized = resolve(directory);
 
-  // Must be an absolute path
-  if (!normalized.startsWith("/")) {
+  if (!isAbsolute(normalized)) {
     throw new Error(
       `Invalid directory: "${directory}" is not an absolute path. ` +
-        `Provide a full path like "/home/user/my-project".`,
+        `Provide a full path to an existing directory.`,
     );
   }
 
-  // Must exist on disk
   if (!existsSync(normalized)) {
     throw new Error(
       `Directory not found: "${normalized}" does not exist. ` +
@@ -600,7 +597,6 @@ function diagnoseError(msg: string): string {
     tips.push("- Verify OPENCODE_BASE_URL is correct (default: http://127.0.0.1:4096)");
   } else if (lower.includes("directory not found") || lower.includes("not an absolute path")) {
     tips.push("- The `directory` parameter must be an absolute path to an existing directory");
-    tips.push("- Example: `/home/user/my-project` (not `./my-project` or `~/my-project`)");
   }
 
   return tips.join("\n");
